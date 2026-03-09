@@ -14,8 +14,6 @@ flex-direction:column;
 height:100vh;
 }
 
-/* 入力エリア */
-
 #gridArea{
 flex:1;
 overflow-y:auto;
@@ -35,6 +33,13 @@ flex-direction:column;
 justify-content:center;
 align-items:center;
 position:relative;
+cursor:pointer;
+}
+
+/* 選択中マス */
+
+.cell.selected{
+border:3px solid red;
 }
 
 .translation{
@@ -91,7 +96,7 @@ width:28px;
 height:28px;
 }
 
-.selected{
+.selectedHen{
 background:#ffd966;
 }
 
@@ -147,7 +152,14 @@ cell.appendChild(trans)
 cell.appendChild(sym)
 
 cell.onclick=()=>{
+
+document.querySelectorAll(".cell")
+.forEach(c=>c.classList.remove("selected"))
+
+cell.classList.add("selected")
+
 currentCell=cell
+
 }
 
 grid.appendChild(cell)
@@ -176,9 +188,9 @@ key.onclick=()=>{
 selectedHen=i
 
 document.querySelectorAll("#henKeys .key")
-.forEach(k=>k.classList.remove("selected"))
+.forEach(k=>k.classList.remove("selectedHen"))
 
-key.classList.add("selected")
+key.classList.add("selectedHen")
 
 createTsukuriKeys()
 
@@ -249,14 +261,24 @@ trans.innerText="?"
 
 }
 
-/* 対応変更 */
+/* 対応文字変更 */
 
 function changeMapping(){
 
-let code=prompt("桶地下文字コード (例 H1-T3)")
-if(!code)return
+if(!currentCell){
+alert("文字マスを選択してください")
+return
+}
 
-let text=prompt("対応文字")
+let code=currentCell.dataset.code
+
+if(!code){
+alert("先に桶地下文字を入力してください")
+return
+}
+
+let text=prompt("対応文字を入力")
+
 if(text==null)return
 
 mapping[code]=text
