@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>桶地下 解読ツール</title>
+
+<style>
+
+body{
+margin:0;
+font-family:sans-serif;
+display:flex;
+flex-direction:column;
+height:100vh;
+}
+
+#gridArea{
+flex:1;
+overflow-y:auto;
+padding:20px;
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+align-content:flex-start;
+}
+
+.cell{
+width:80px;
+height:80px;
+border:2px solid #333;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+position:relative;
+}
+
+.translation{
+font-size:14px;
+position:absolute;
+top:2px;
+}
+
+.symbol{
+display:flex;
+align-items:center;
+gap:4px;
+font-size:18px;
+}
+
+.hen{
+width:16px;
+height:16px;
+}
+
+.tsukuri{
+font-size:16px;
+}
+
+/* キーボード */
+
+#keyboard{
+border-top:2px solid #333;
+padding:10px;
+display:flex;
+flex-direction:column;
+gap:10px;
+max-height:260px;
+overflow-y:auto;
+}
+
+.keyboardRow{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+}
+
+.key{
+border:1px solid #444;
+padding:6px;
+cursor:pointer;
+background:#eee;
+display:flex;
+align-items:center;
+gap:4px;
+}
+
+.key:hover{
+background:#ddd;
+}
+
+.selected{
+background:#ffd966;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="gridArea"></div>
+
+<div style="padding:10px;border-top:1px solid #aaa">
+<button onclick="addCell()">マス追加</button>
+<button onclick="changeMapping()">対応文字変更</button>
+</div>
+
+<div id="keyboard">
+
+<div>
+<b>偏</b>
+<div id="henKeys" class="keyboardRow"></div>
+</div>
+
+<div>
+<b>旁</b>
+<div id="tsukuriKeys" class="keyboardRow"></div>
+</div>
+
+</div>
+
+<script>
+
+let mapping={}
+let cells=[]
+let currentCell=null
+let selectedHen=null
+
+/* 偏色 */
+
+const henColors=[
+"#ff6666","#ff9966","#ffcc66","#ffff66","#ccff66",
+"#99ff66","#66ff66","#66ff99","#66ffcc","#66ffff",
+"#66ccff","#6699ff","#6666ff","#9966ff","#cc66ff",
+"#ff66ff","#ff66cc","#ff6699","#aaaaaa","#777777"
+]
+
+/* 旁形 */
+
+const shapes=["▲","■","◆","●","★","✚","✦","⬟"]
+
+/* マス追加 */
+
+function addCell(){
+
+let grid=document.getElementById("gridArea")
+
+let cell=document.createElement("div")
+cell.className="cell"
+
+let trans=document.createElement("div")
+trans.className="translation"
+
+let sym=document.createElement("div")
+sym.className="symbol"
+
+cell.appendChild(trans)
+cell.appendChild(sym)
+
+cell.onclick=()=>{
+currentCell=cell
+}
+
+grid.appendChild(cell)
+cells.push(cell)
+
+}
+
+/* 偏キーボード */
+
+function createHenKeys(){
+
+let area=document.getElementById("henKeys")
+
+for(let i=0;i<20;i++){
+
+let key=document.createElement("div")
+key.className="key"
+
+let box=document.createElement("div")
+box.className="hen"
+box.style.background=henColors[i]
+
+key.appendChild(box)
+key.append("偏"+(i+1))
+
+key.onclick=()=>{
+
+selectedHen=i
+
+document.querySelectorAll("#henKeys .key")
+.forEach(k=>k.classList.remove("selected"))
+
+key.classList.add("selected")
+
+createTsukuriKeys()
+
+}
+
+area.appendChild(key)
+
+}
+
+}
+
+/* 旁キーボード */
+
+function createTsukuriKeys(){
+
+let area=document.getElementById("tsukuriKeys")
+area.innerHTML=""
+
+for(let i=1;i<=70;i++){
+
+let key=document.createElement("div")
+key.className="key"
+
+let shape=document.createElement("div")
+shape.className="tsukuri"
+shape.innerText=shapes[i%shapes.length]
+
+key.appendChild(shape)
+key.append(i)
+
+let code="H"+selectedHen+"-T"+i
+
+key.onclick=()=>{
+inputOkechika(code,selectedHen,i)
+}
+
+area.appendChild(key)
+
+}
+
+}
+
+/* 入力 */
+
+function inputOkechika(code,hen,tsukuri){
+
+if(!currentCell)return
+
+let sym=currentCell.querySelector(".symbol")
+let trans=currentCell.querySelector(".translation")
+
+sym.innerHTML=""
+
+let box=document.createElement("div")
+box.className="hen"
+box.style.background=henColors[hen]
+
+let shape=document.createElement("div")
+shape.className="tsukuri"
+shape.innerText=shapes[tsukuri%shapes.length]
+
+sym.appendChild(box)
+sym.appendChild(shape)
+
+currentCell.dataset.code=code
+
+if(mapping[code]){
+trans.innerText=mapping[code]
+}else{
+trans.innerText="?"
+}
+
+}
+
+/* 対応変更 */
+
+function changeMapping(){
+
+let code=prompt("桶地下文字コード (例 H1-T3)")
+if(!code)return
+
+let text=prompt("対応文字")
+if(text==null)return
+
+mapping[code]=text
+
+updateAll()
+
+}
+
+/* 更新 */
+
+function updateAll(){
+
+cells.forEach(cell=>{
+
+let code=cell.dataset.code
+let trans=cell.querySelector(".translation")
+
+if(mapping[code]){
+trans.innerText=mapping[code]
+}
+
+})
+
+}
+
+/* 初期化 */
+
+createHenKeys()
+addCell()
+
+</script>
+
+</body>
+</html>
