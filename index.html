@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -35,8 +36,6 @@ align-items:center;
 position:relative;
 cursor:pointer;
 }
-
-/* 選択中マス */
 
 .cell.selected{
 border:3px solid red;
@@ -110,6 +109,7 @@ background:#ffd966;
 <div style="padding:10px;border-top:1px solid #aaa">
 <button onclick="addCell()">マス追加</button>
 <button onclick="changeMapping()">対応文字変更</button>
+<button onclick="resetData()">リセット</button>
 </div>
 
 <div id="keyboard">
@@ -132,6 +132,42 @@ let mapping={}
 let cells=[]
 let currentCell=null
 let selectedHen=null
+
+/* 保存 */
+
+function saveData(){
+
+let codes=cells.map(c=>c.dataset.code || null)
+
+localStorage.setItem("oketika_codes",JSON.stringify(codes))
+localStorage.setItem("oketika_mapping",JSON.stringify(mapping))
+
+}
+
+/* 読み込み */
+
+function loadData(){
+
+let savedCodes=JSON.parse(localStorage.getItem("oketika_codes")||"[]")
+mapping=JSON.parse(localStorage.getItem("oketika_mapping")||"{}")
+
+savedCodes.forEach(code=>{
+
+addCell()
+
+if(code){
+
+let parts=code.split("-")
+let hen=parseInt(parts[0].substring(1))
+let tsu=parseInt(parts[1].substring(1))
+
+inputOkechika(code,hen,tsu)
+
+}
+
+})
+
+}
 
 /* マス追加 */
 
@@ -157,13 +193,14 @@ document.querySelectorAll(".cell")
 .forEach(c=>c.classList.remove("selected"))
 
 cell.classList.add("selected")
-
 currentCell=cell
 
 }
 
 grid.appendChild(cell)
 cells.push(cell)
+
+saveData()
 
 }
 
@@ -179,7 +216,7 @@ let key=document.createElement("div")
 key.className="key"
 
 let img=document.createElement("img")
-img.src="hen/"+i+".jpg"
+img.src="hen/"+i+".png"
 
 key.appendChild(img)
 
@@ -215,7 +252,7 @@ let key=document.createElement("div")
 key.className="key"
 
 let img=document.createElement("img")
-img.src="tsukuri/"+i+".jpg"
+img.src="tsukuri/"+i+".png"
 
 key.appendChild(img)
 
@@ -243,10 +280,10 @@ let trans=currentCell.querySelector(".translation")
 sym.innerHTML=""
 
 let henImg=document.createElement("img")
-henImg.src="hen/"+hen+".jpg"
+henImg.src="hen/"+hen+".png"
 
 let tsuImg=document.createElement("img")
-tsuImg.src="tsukuri/"+tsukuri+".jpg"
+tsuImg.src="tsukuri/"+tsukuri+".png"
 
 sym.appendChild(henImg)
 sym.appendChild(tsuImg)
@@ -258,6 +295,8 @@ trans.innerText=mapping[code]
 }else{
 trans.innerText="?"
 }
+
+saveData()
 
 }
 
@@ -284,6 +323,7 @@ if(text==null)return
 mapping[code]=text
 
 updateAll()
+saveData()
 
 }
 
@@ -304,10 +344,25 @@ trans.innerText=mapping[code]
 
 }
 
+/* リセット */
+
+function resetData(){
+
+if(!confirm("全データ削除しますか？")) return
+
+localStorage.clear()
+location.reload()
+
+}
+
 /* 初期化 */
 
 createHenKeys()
+loadData()
+
+if(cells.length===0){
 addCell()
+}
 
 </script>
 
