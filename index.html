@@ -109,6 +109,7 @@ background:#ffd966;
 <button onclick="addCell()">マス追加</button>
 <button onclick="changeMapping()">対応文字変更</button>
 <button onclick="resetData()">リセット</button>
+<button onclick="deleteChar()">⌫ 削除</button>
 </div>
 
 <div id="keyboard">
@@ -198,6 +199,24 @@ currentCell=cell
 
 grid.appendChild(cell)
 cells.push(cell)
+
+saveData()
+
+}
+
+/* 文字削除 */
+
+function deleteChar(){
+
+if(!currentCell)return
+
+let sym=currentCell.querySelector(".symbol")
+let trans=currentCell.querySelector(".translation")
+
+sym.innerHTML=""
+trans.innerText=""
+
+delete currentCell.dataset.code
 
 saveData()
 
@@ -362,6 +381,19 @@ loadData()
 if(cells.length===0){
 addCell()
 }
+
+document.addEventListener("keydown",function(e){
+
+if(e.key==="Backspace"){
+
+if(currentCell){
+deleteChar()
+e.preventDefault()
+}
+
+}
+
+})
 
 </script>
 
