@@ -247,8 +247,6 @@ inputOkechika(code,hen,tsu)
 
 }
 
-loadDocuments()
-
 })
 
 }
@@ -492,6 +490,8 @@ location.reload()
 
 createHenKeys()
 loadData()
+loadDocuments()
+loadDocument()
 
 if(cells.length===0){
 addCell()
@@ -745,7 +745,7 @@ function saveDocument(){
 
 documents[currentDocument]={
 cells:exportCells(),
-mapping:mapping
+mapping:{...mapping}
 }
 
 localStorage.setItem(
@@ -795,7 +795,11 @@ loadDocument()
 
 function exportCells(){
 
-return cells.map(c=>c.code)
+return cells.map(c=>{
+
+return c.code ? c.code : null
+
+})
 
 }
 
@@ -807,7 +811,9 @@ data.forEach(code=>{
 
 addCell()
 
-cells[cells.length-1].code=code
+let cell=cells[cells.length-1]
+
+cell.code=code
 
 })
 
