@@ -228,6 +228,29 @@ function createHenKeys(){
 
 let area=document.getElementById("henKeys")
 
+/* 偏なし */
+
+let noneKey=document.createElement("div")
+noneKey.className="key"
+noneKey.innerText="偏なし"
+
+noneKey.onclick=()=>{
+
+selectedHen=0
+
+document.querySelectorAll("#henKeys .key")
+.forEach(k=>k.classList.remove("selectedHen"))
+
+noneKey.classList.add("selectedHen")
+
+createTsukuriKeys()
+
+}
+
+area.appendChild(noneKey)
+
+/* 偏1〜20 */
+
 for(let i=1;i<=20;i++){
 
 let key=document.createElement("div")
@@ -274,7 +297,15 @@ img.src="tsukuri/"+i+".jpg"
 
 key.appendChild(img)
 
-let code="H"+selectedHen+"-T"+i
+/* コード */
+
+let code
+
+if(selectedHen===0){
+code="T"+i
+}else{
+code="H"+selectedHen+"-T"+i
+}
 
 key.onclick=()=>{
 inputOkechika(code,selectedHen,i)
@@ -297,13 +328,20 @@ let trans=currentCell.querySelector(".translation")
 
 sym.innerHTML=""
 
+/* 偏あり */
+
+if(hen>0){
+
 let henImg=document.createElement("img")
 henImg.src="hen/"+hen+".jpg"
+sym.appendChild(henImg)
+
+}
+
+/* 旁 */
 
 let tsuImg=document.createElement("img")
 tsuImg.src="tsukuri/"+tsukuri+".jpg"
-
-sym.appendChild(henImg)
 sym.appendChild(tsuImg)
 
 currentCell.dataset.code=code
@@ -317,7 +355,6 @@ trans.innerText="?"
 saveData()
 
 }
-
 /* 対応文字変更 */
 
 function changeMapping(){
