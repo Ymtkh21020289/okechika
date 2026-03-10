@@ -7,46 +7,33 @@
 <style>
 
 body{
-margin:0;
 font-family:sans-serif;
-display:flex;
-flex-direction:column;
-height:100vh;
+margin:0;
 }
 
 #documentBar{
 position:sticky;
 top:0;
-left:0;
-width:100%;
 background:#ddd;
 padding:8px;
 z-index:10;
 }
 
 #container{
-margin-top:60px;
-}
-
-#gridArea{
-flex:1;
-overflow-y:auto;
-padding:20px;
 display:flex;
 flex-wrap:wrap;
 gap:10px;
-align-content:flex-start;
+padding:20px;
 }
 
 .cell{
-width:80px;
+width:60px;
 height:80px;
-border:2px solid #333;
+border:1px solid black;
 display:flex;
 flex-direction:column;
-justify-content:center;
 align-items:center;
-position:relative;
+justify-content:center;
 cursor:pointer;
 }
 
@@ -54,62 +41,31 @@ cursor:pointer;
 border:3px solid red;
 }
 
-.translation{
-font-size:14px;
-position:absolute;
-top:2px;
+.translate{
+font-size:18px;
 }
 
-.symbol{
-display:flex;
-align-items:center;
-gap:4px;
+.code{
+font-size:10px;
+color:gray;
 }
-
-.symbol img{
-width:28px;
-height:28px;
-}
-
-/* キーボード */
 
 #keyboard{
-border-top:2px solid #333;
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:#eee;
 padding:10px;
-display:flex;
-flex-direction:column;
-gap:10px;
-max-height:260px;
-overflow-y:auto;
-}
-
-.keyboardRow{
-display:flex;
-flex-wrap:wrap;
-gap:6px;
+max-height:250px;
+overflow:auto;
 }
 
 .key{
-border:1px solid #444;
-padding:6px;
+width:40px;
+height:40px;
+margin:2px;
 cursor:pointer;
-background:#eee;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
-.key:hover{
-background:#ddd;
-}
-
-.key img{
-width:28px;
-height:28px;
-}
-
-.selectedHen{
-background:#ffd966;
 }
 
 #dictionaryPanel{
@@ -129,7 +85,6 @@ background:white;
 padding:20px;
 max-height:80%;
 overflow:auto;
-min-width:300px;
 }
 
 .dictRow{
@@ -141,7 +96,7 @@ cursor:pointer;
 }
 
 .dictRow:hover{
-background:#eeeeee;
+background:#eee;
 }
 
 .dictRow img{
@@ -163,42 +118,25 @@ height:24px;
 <button onclick="saveDocument()">保存</button>
 <button onclick="deleteDocument()">削除</button>
 
-</div>
-
-<div id="gridArea"></div>
-
-<div style="padding:10px;border-top:1px solid #aaa">
 <button onclick="addCell()">マス追加</button>
+<button onclick="deleteChar()">⌫文字削除</button>
 <button onclick="deleteCell()">マス削除</button>
-<button onclick="changeMapping()">対応文字変更</button>
-<button onclick="resetData()">リセット</button>
-<button onclick="deleteChar()">⌫ 削除</button>
+
 <button onclick="showDictionary()">辞書一覧</button>
-</div>
-
-<div id="keyboard">
-
-<div>
-<b>偏</b>
-<div id="henKeys" class="keyboardRow"></div>
-</div>
-
-<div>
-<b>旁</b>
-<div id="tsukuriKeys" class="keyboardRow"></div>
-</div>
 
 </div>
+
+<div id="container"></div>
+
+<div id="keyboard"></div>
 
 <div id="dictionaryPanel">
 
 <div id="dictionaryBox">
 
-<h3>登録済み辞書</h3>
+<h3>辞書</h3>
 
 <div id="dictionaryList"></div>
-
-<br>
 
 <button onclick="closeDictionary()">閉じる</button>
 
@@ -208,461 +146,140 @@ height:24px;
 
 <script>
 
-let mapping={}
 let cells=[]
 let currentCell=null
-let selectedHen=null
+let mapping={}
+
 let documents={}
-let currentDocument="default"
+let currentDocument="文章1"
 
-/* 保存 */
+function createKeyboard(){
 
-function saveData(){
+let kb=document.getElementById("keyboard")
 
-let codes=cells.map(c=>c.dataset.code || null)
+kb.innerHTML=""
 
-localStorage.setItem("oketika_codes",JSON.stringify(codes))
-localStorage.setItem("oketika_mapping",JSON.stringify(mapping))
+for(let i=1;i<=20;i++){
 
-}
+let img=document.createElement("img")
+img.src="hen/"+i+".jpg"
+img.className="key"
 
-/* 読み込み */
+img.onclick=()=>selectHen(i)
 
-function loadData(){
-
-let savedCodes=JSON.parse(localStorage.getItem("oketika_codes")||"[]")
-mapping=JSON.parse(localStorage.getItem("oketika_mapping")||"{}")
-
-savedCodes.forEach(code=>{
-
-addCell()
-
-if(code){
-
-let parts=code.split("-")
-let hen=parseInt(parts[0].substring(1))
-let tsu=parseInt(parts[1].substring(1))
-
-inputOkechika(code,hen,tsu)
+kb.appendChild(img)
 
 }
 
-})
+kb.appendChild(document.createElement("br"))
+
+for(let i=1;i<=70;i++){
+
+let img=document.createElement("img")
+img.src="tsukuri/"+i+".jpg"
+img.className="key"
+
+img.onclick=()=>inputTsu(i)
+
+kb.appendChild(img)
 
 }
 
-/* マス追加 */
-
-function addCell(){
-
-let grid=document.getElementById("gridArea")
-
-let cell=document.createElement("div")
-cell.className="cell"
-
-let trans=document.createElement("div")
-trans.className="translation"
-
-let sym=document.createElement("div")
-sym.className="symbol"
-
-cell.appendChild(trans)
-cell.appendChild(sym)
-
-cell.onclick=()=>{
-selectCell(cell)
 }
 
-grid.appendChild(cell)
-cells.push(cell)
+let selectedHen=null
+
+function selectHen(i){
+selectedHen=i
+}
+
+function inputTsu(i){
+
+if(!currentCell)return
+
+let code
+
+if(selectedHen){
+code="H"+selectedHen+"-T"+i
+selectedHen=null
+}else{
+code="T"+i
+}
+
+currentCell.code=code
+
+updateCell(currentCell)
 
 saveData()
 
 }
 
-/* 文字削除 */
+function addCell(){
+
+let c=document.createElement("div")
+c.className="cell"
+
+c.onclick=()=>selectCell(c)
+
+let t=document.createElement("div")
+t.className="translate"
+
+let code=document.createElement("div")
+code.className="code"
+
+c.appendChild(t)
+c.appendChild(code)
+
+document.getElementById("container").appendChild(c)
+
+cells.push(c)
+
+selectCell(c)
+
+}
+
+function selectCell(c){
+
+cells.forEach(x=>x.classList.remove("selected"))
+
+c.classList.add("selected")
+
+currentCell=c
+
+}
+
+function updateCell(c){
+
+let t=c.querySelector(".translate")
+let code=c.querySelector(".code")
+
+let k=c.code
+
+code.innerText=k||""
+
+t.innerText=mapping[k]||"?"
+
+}
+
+function updateAll(){
+cells.forEach(updateCell)
+}
 
 function deleteChar(){
 
 if(!currentCell)return
 
-let sym=currentCell.querySelector(".symbol")
-let trans=currentCell.querySelector(".translation")
+currentCell.code=null
 
-sym.innerHTML=""
-trans.innerText=""
-
-delete currentCell.dataset.code
+updateCell(currentCell)
 
 saveData()
-
-}
-
-/* 偏キーボード */
-
-function createHenKeys(){
-
-let area=document.getElementById("henKeys")
-
-/* 偏なし */
-
-let noneKey=document.createElement("div")
-noneKey.className="key"
-noneKey.innerText="偏なし"
-
-noneKey.onclick=()=>{
-
-selectedHen=0
-
-document.querySelectorAll("#henKeys .key")
-.forEach(k=>k.classList.remove("selectedHen"))
-
-noneKey.classList.add("selectedHen")
-
-createTsukuriKeys()
-
-}
-
-area.appendChild(noneKey)
-
-/* 偏1〜20 */
-
-for(let i=1;i<=20;i++){
-
-let key=document.createElement("div")
-key.className="key"
-
-let img=document.createElement("img")
-img.src="hen/"+i+".jpg"
-
-key.appendChild(img)
-
-key.onclick=()=>{
-
-selectedHen=i
-
-document.querySelectorAll("#henKeys .key")
-.forEach(k=>k.classList.remove("selectedHen"))
-
-key.classList.add("selectedHen")
-
-createTsukuriKeys()
-
-}
-
-area.appendChild(key)
-
-}
-
-}
-
-/* 旁キーボード */
-
-function createTsukuriKeys(){
-
-let area=document.getElementById("tsukuriKeys")
-area.innerHTML=""
-
-for(let i=1;i<=70;i++){
-
-let key=document.createElement("div")
-key.className="key"
-
-let img=document.createElement("img")
-img.src="tsukuri/"+i+".jpg"
-
-key.appendChild(img)
-
-/* コード */
-
-let code
-
-if(selectedHen===0){
-code="T"+i
-}else{
-code="H"+selectedHen+"-T"+i
-}
-
-key.onclick=()=>{
-inputOkechika(code,selectedHen,i)
-}
-
-area.appendChild(key)
-
-}
-
-}
-
-/* 入力 */
-
-function inputOkechika(code,hen,tsukuri){
-
-if(!currentCell)return
-
-let sym=currentCell.querySelector(".symbol")
-let trans=currentCell.querySelector(".translation")
-
-sym.innerHTML=""
-
-/* 偏あり */
-
-if(hen>0){
-
-let henImg=document.createElement("img")
-henImg.src="hen/"+hen+".jpg"
-sym.appendChild(henImg)
-
-}
-
-/* 旁 */
-
-let tsuImg=document.createElement("img")
-tsuImg.src="tsukuri/"+tsukuri+".jpg"
-sym.appendChild(tsuImg)
-
-currentCell.dataset.code=code
-
-if(mapping[code]){
-trans.innerText=mapping[code]
-}else{
-trans.innerText="?"
-}
-
-saveData()
-
-}
-/* 対応文字変更 */
-
-function changeMapping(){
-
-if(!currentCell){
-alert("文字マスを選択してください")
-return
-}
-
-let code=currentCell.dataset.code
-
-if(!code){
-alert("先に桶地下文字を入力してください")
-return
-}
-
-let text=prompt("対応文字を入力")
-
-if(text==null)return
-
-mapping[code]=text
-
-updateAll()
-saveData()
-
-}
-
-/* 更新 */
-
-function updateAll(){
-
-cells.forEach(cell=>{
-
-let code=cell.dataset.code
-let trans=cell.querySelector(".translation")
-
-if(mapping[code]){
-trans.innerText=mapping[code]
-}
-
-})
-
-}
-
-/* リセット */
-
-function resetData(){
-
-if(!confirm("全データ削除しますか？")) return
-
-localStorage.clear()
-location.reload()
-
-}
-
-/* 初期化 */
-
-createHenKeys()
-loadData()
-loadDocuments()
-loadDocument()
-
-if(cells.length===0){
-addCell()
-}
-
-document.addEventListener("keydown",function(e){
-
-if(e.key==="Backspace"){
-
-if(currentCell){
-deleteChar()
-e.preventDefault()
-}
-
-}
-
-})
-
-document.addEventListener("keydown",function(e){
-
-if(!currentCell) return
-
-let index=cells.indexOf(currentCell)
-
-/* 右移動 */
-
-if(e.key==="ArrowRight"){
-
-if(index < cells.length-1){
-
-selectCell(cells[index+1])
-
-}
-
-}
-
-/* 左移動 */
-
-if(e.key==="ArrowLeft"){
-
-if(index > 0){
-
-selectCell(cells[index-1])
-
-}
-
-}
-
-if(e.key==="Delete"){
-
-deleteCell()
-e.preventDefault()
-
-}
-
-})
-
-/* セル選択関数 */
-
-function selectCell(cell){
-
-document.querySelectorAll(".cell")
-.forEach(c=>c.classList.remove("selected"))
-
-cell.classList.add("selected")
-currentCell=cell
-
-}
-
-function showDictionary(){
-
-let panel=document.getElementById("dictionaryPanel")
-let list=document.getElementById("dictionaryList")
-
-list.innerHTML=""
-
-let keys=Object.keys(mapping)
-
-if(keys.length===0){
-list.innerHTML="辞書はまだ登録されていません"
-}else{
-
-keys.sort()
-
-keys.forEach(code=>{
-
-let row=document.createElement("div")
-row.className="dictRow"
-row.onclick=()=>{
-editDictionary(code)
-}
-
-/* 偏あり */
-
-if(code.startsWith("H")){
-
-let parts=code.split("-")
-
-let hen=parts[0].substring(1)
-let tsu=parts[1].substring(1)
-
-let henImg=document.createElement("img")
-henImg.src="hen/"+hen+".jpg"
-
-let tsuImg=document.createElement("img")
-tsuImg.src="tsukuri/"+tsu+".jpg"
-
-row.appendChild(henImg)
-row.appendChild(tsuImg)
-
-}
-
-/* 偏なし */
-
-if(code.startsWith("T")){
-
-let tsu=code.substring(1)
-
-let tsuImg=document.createElement("img")
-tsuImg.src="tsukuri/"+tsu+".jpg"
-
-row.appendChild(tsuImg)
-
-}
-
-/* 翻訳 */
-
-let text=document.createElement("span")
-text.innerText=" → "+mapping[code]
-
-row.appendChild(text)
-
-list.appendChild(row)
-
-})
-
-}
-
-panel.style.display="flex"
-
-}
-
-function closeDictionary(){
-
-document.getElementById("dictionaryPanel").style.display="none"
-
-}
-
-function editDictionary(code){
-
-let current=mapping[code]
-
-let text=prompt("対応文字を編集",current)
-
-if(text===null) return
-
-if(text===""){
-delete mapping[code]
-}else{
-mapping[code]=text
-}
-
-updateAll()
-saveData()
-showDictionary()
 
 }
 
 function deleteCell(){
 
-if(!currentCell) return
+if(!currentCell)return
 
 let index=cells.indexOf(currentCell)
 
@@ -670,12 +287,11 @@ currentCell.remove()
 
 cells.splice(index,1)
 
-/* 次のセル選択 */
-
 if(cells.length>0){
 
-let newIndex=Math.min(index,cells.length-1)
-selectCell(cells[newIndex])
+let n=Math.min(index,cells.length-1)
+
+selectCell(cells[n])
 
 }else{
 
@@ -687,57 +303,130 @@ saveData()
 
 }
 
-function loadDocuments(){
+function changeMapping(){
 
-let data=localStorage.getItem("oketsu_documents")
+if(!currentCell)return
 
-if(data){
-documents=JSON.parse(data)
+let k=currentCell.code
+
+if(!k)return
+
+let v=prompt("対応文字",mapping[k]||"")
+
+if(v===null)return
+
+mapping[k]=v
+
+updateAll()
+
+saveData()
+
 }
 
-updateDocumentList()
+function showDictionary(){
 
-if(!documents[currentDocument]){
-documents[currentDocument]={}
+let list=document.getElementById("dictionaryList")
+
+list.innerHTML=""
+
+Object.keys(mapping).forEach(code=>{
+
+let row=document.createElement("div")
+row.className="dictRow"
+
+if(code.startsWith("H")){
+
+let p=code.split("-")
+
+let h=p[0].substring(1)
+let t=p[1].substring(1)
+
+let hi=document.createElement("img")
+hi.src="hen/"+h+".jpg"
+
+let ti=document.createElement("img")
+ti.src="tsukuri/"+t+".jpg"
+
+row.appendChild(hi)
+row.appendChild(ti)
+
+}else{
+
+let t=code.substring(1)
+
+let ti=document.createElement("img")
+ti.src="tsukuri/"+t+".jpg"
+
+row.appendChild(ti)
+
 }
 
-}
+let text=document.createElement("span")
+text.innerText=" → "+mapping[code]
 
-function updateDocumentList(){
+row.appendChild(text)
 
-let select=document.getElementById("documentSelect")
+row.onclick=()=>editDictionary(code)
 
-select.innerHTML=""
-
-Object.keys(documents).forEach(name=>{
-
-let opt=document.createElement("option")
-opt.value=name
-opt.textContent=name
-
-if(name===currentDocument){
-opt.selected=true
-}
-
-select.appendChild(opt)
+list.appendChild(row)
 
 })
 
+document.getElementById("dictionaryPanel").style.display="flex"
+
 }
 
-function newDocument(){
+function closeDictionary(){
+document.getElementById("dictionaryPanel").style.display="none"
+}
 
-let name=prompt("文章名を入力")
+function editDictionary(code){
 
-if(!name) return
+let v=prompt("編集",mapping[code])
 
-documents[name]={}
+if(v===null)return
 
-currentDocument=name
+if(v===""){
+delete mapping[code]
+}else{
+mapping[code]=v
+}
 
-updateDocumentList()
+updateAll()
+
+saveData()
+
+showDictionary()
+
+}
+
+function clearCells(){
+
+document.getElementById("container").innerHTML=""
+
+cells=[]
+
+currentCell=null
+
+}
+
+function exportCells(){
+return cells.map(c=>c.code||null)
+}
+
+function importCells(data){
 
 clearCells()
+
+data.forEach(code=>{
+
+addCell()
+
+cells[cells.length-1].code=code
+
+})
+
+updateAll()
 
 }
 
@@ -748,10 +437,7 @@ cells:exportCells(),
 mapping:{...mapping}
 }
 
-localStorage.setItem(
-"oketsu_documents",
-JSON.stringify(documents)
-)
+localStorage.setItem("oketsu_documents",JSON.stringify(documents))
 
 alert("保存しました")
 
@@ -763,80 +449,120 @@ let select=document.getElementById("documentSelect")
 
 currentDocument=select.value
 
-let data=documents[currentDocument]
+let d=documents[currentDocument]
 
-if(!data) return
+if(!d)return
 
-importCells(data.cells)
+mapping=d.mapping||{}
 
-mapping=data.mapping||{}
+importCells(d.cells||[])
 
-updateAll()
+}
+
+function newDocument(){
+
+let name=prompt("文章名")
+
+if(!name)return
+
+documents[name]={}
+
+currentDocument=name
+
+updateDocumentList()
+
+clearCells()
 
 }
 
 function deleteDocument(){
 
-if(!confirm("削除しますか？")) return
+if(!confirm("削除?"))return
 
 delete documents[currentDocument]
 
-localStorage.setItem(
-"oketsu_documents",
-JSON.stringify(documents)
-)
+localStorage.setItem("oketsu_documents",JSON.stringify(documents))
 
-currentDocument=Object.keys(documents)[0]||"default"
+currentDocument=Object.keys(documents)[0]
 
 updateDocumentList()
+
 loadDocument()
 
 }
 
-function exportCells(){
+function updateDocumentList(){
 
-return cells.map(c=>{
+let select=document.getElementById("documentSelect")
 
-return c.code ? c.code : null
+select.innerHTML=""
+
+Object.keys(documents).forEach(n=>{
+
+let o=document.createElement("option")
+
+o.value=n
+o.textContent=n
+
+if(n===currentDocument)o.selected=true
+
+select.appendChild(o)
 
 })
 
 }
 
-function importCells(data){
+function loadDocuments(){
 
-clearCells()
+let d=localStorage.getItem("oketsu_documents")
 
-data.forEach(code=>{
+if(d)documents=JSON.parse(d)
+
+if(!documents[currentDocument])documents[currentDocument]={}
+
+updateDocumentList()
+
+}
+
+function saveData(){
+saveDocument()
+}
+
+document.addEventListener("keydown",e=>{
+
+if(e.key==="ArrowRight"){
+
+let i=cells.indexOf(currentCell)
+
+if(i<cells.length-1)selectCell(cells[i+1])
+
+}
+
+if(e.key==="ArrowLeft"){
+
+let i=cells.indexOf(currentCell)
+
+if(i>0)selectCell(cells[i-1])
+
+}
+
+if(e.key==="Backspace"){
+deleteChar()
+e.preventDefault()
+}
+
+if(e.key==="Delete"){
+deleteCell()
+}
+
+})
+
+createKeyboard()
+
+loadDocuments()
 
 addCell()
 
-let cell=cells[cells.length-1]
-
-cell.code=code
-
-})
-
-updateAll()
-
-}
-
-function clearCells(){
-
-/* 盤面要素取得 */
-const container=document.getElementById("gridArea")
-
-/* DOM削除 */
-container.innerHTML=""
-
-/* 配列初期化 */
-cells=[]
-
-/* 選択セル解除 */
-currentCell=null
-
-}
-  
 </script>
 
 </body>
