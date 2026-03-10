@@ -98,6 +98,38 @@ height:28px;
 background:#ffd966;
 }
 
+#dictionaryPanel{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+display:none;
+justify-content:center;
+align-items:center;
+}
+
+#dictionaryBox{
+background:white;
+padding:20px;
+max-height:80%;
+overflow:auto;
+min-width:300px;
+}
+
+.dictRow{
+display:flex;
+align-items:center;
+gap:10px;
+margin:5px 0;
+}
+
+.dictRow img{
+width:24px;
+height:24px;
+}
+
 </style>
 </head>
 
@@ -110,6 +142,7 @@ background:#ffd966;
 <button onclick="changeMapping()">対応文字変更</button>
 <button onclick="resetData()">リセット</button>
 <button onclick="deleteChar()">⌫ 削除</button>
+<button onclick="showDictionary()">辞書一覧</button>
 </div>
 
 <div id="keyboard">
@@ -122,6 +155,22 @@ background:#ffd966;
 <div>
 <b>旁</b>
 <div id="tsukuriKeys" class="keyboardRow"></div>
+</div>
+
+</div>
+
+<div id="dictionaryPanel">
+
+<div id="dictionaryBox">
+
+<h3>登録済み辞書</h3>
+
+<div id="dictionaryList"></div>
+
+<br>
+
+<button onclick="closeDictionary()">閉じる</button>
+
 </div>
 
 </div>
@@ -467,6 +516,82 @@ document.querySelectorAll(".cell")
 
 cell.classList.add("selected")
 currentCell=cell
+
+}
+
+function showDictionary(){
+
+let panel=document.getElementById("dictionaryPanel")
+let list=document.getElementById("dictionaryList")
+
+list.innerHTML=""
+
+let keys=Object.keys(mapping)
+
+if(keys.length===0){
+list.innerHTML="辞書はまだ登録されていません"
+}else{
+
+keys.sort()
+
+keys.forEach(code=>{
+
+let row=document.createElement("div")
+row.className="dictRow"
+
+/* 偏あり */
+
+if(code.startsWith("H")){
+
+let parts=code.split("-")
+
+let hen=parts[0].substring(1)
+let tsu=parts[1].substring(1)
+
+let henImg=document.createElement("img")
+henImg.src="hen/"+hen+".jpg"
+
+let tsuImg=document.createElement("img")
+tsuImg.src="tsukuri/"+tsu+".jpg"
+
+row.appendChild(henImg)
+row.appendChild(tsuImg)
+
+}
+
+/* 偏なし */
+
+if(code.startsWith("T")){
+
+let tsu=code.substring(1)
+
+let tsuImg=document.createElement("img")
+tsuImg.src="tsukuri/"+tsu+".jpg"
+
+row.appendChild(tsuImg)
+
+}
+
+/* 翻訳 */
+
+let text=document.createElement("span")
+text.innerText=" → "+mapping[code]
+
+row.appendChild(text)
+
+list.appendChild(row)
+
+})
+
+}
+
+panel.style.display="flex"
+
+}
+
+function closeDictionary(){
+
+document.getElementById("dictionaryPanel").style.display="none"
 
 }
   
