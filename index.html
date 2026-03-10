@@ -50,6 +50,19 @@ font-size:10px;
 color:gray;
 }
 
+.glyph{
+display:flex;
+gap:2px;
+align-items:center;
+justify-content:center;
+height:30px;
+}
+
+.glyph img{
+width:24px;
+height:24px;
+}
+
 #keyboard{
 position:fixed;
 bottom:0;
@@ -221,14 +234,14 @@ c.className="cell"
 
 c.onclick=()=>selectCell(c)
 
+let glyph=document.createElement("div")
+glyph.className="glyph"
+
 let t=document.createElement("div")
 t.className="translate"
 
-let code=document.createElement("div")
-code.className="code"
-
 c.appendChild(t)
-c.appendChild(code)
+c.appendChild(glyph)
 
 document.getElementById("container").appendChild(c)
 
@@ -251,13 +264,54 @@ currentCell=c
 function updateCell(c){
 
 let t=c.querySelector(".translate")
-let code=c.querySelector(".code")
+let glyph=c.querySelector(".glyph")
+
+glyph.innerHTML=""
 
 let k=c.code
 
-code.innerText=k||""
+if(!k){
+t.innerText=""
+return
+}
 
 t.innerText=mapping[k]||"?"
+
+/* 偏あり */
+
+if(k.startsWith("H")){
+
+let p=k.split("-")
+
+let h=p[0].substring(1)
+let t2=p[1].substring(1)
+
+let hi=document.createElement("img")
+hi.src="hen/"+h+".png"
+hi.style.width="24px"
+
+let ti=document.createElement("img")
+ti.src="tsukuri/"+t2+".png"
+ti.style.width="24px"
+
+glyph.appendChild(hi)
+glyph.appendChild(ti)
+
+}
+
+/* 偏なし */
+
+else if(k.startsWith("T")){
+
+let t2=k.substring(1)
+
+let ti=document.createElement("img")
+ti.src="tsukuri/"+t2+".png"
+ti.style.width="24px"
+
+glyph.appendChild(ti)
+
+}
 
 }
 
