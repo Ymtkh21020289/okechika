@@ -489,8 +489,7 @@ updateAll()
 function saveDocument(showMessage=true){
 
 documents[currentDocument]={
-cells:exportCells(),
-mapping:{...mapping}
+cells:exportCells()
 }
 
 localStorage.setItem("oketsu_documents",JSON.stringify(documents))
@@ -580,10 +579,25 @@ if(!documents[currentDocument])documents[currentDocument]={}
 
 updateDocumentList()
 
+let dic=localStorage.getItem("oketsu_dictionary")
+
+if(dic){
+mapping=JSON.parse(dic)
+}
+
 }
 
 function saveData(){
+
 saveDocument(false)
+
+/* 辞書保存 */
+
+localStorage.setItem(
+"oketsu_dictionary",
+JSON.stringify(mapping)
+)
+
 }
 
 document.addEventListener("keydown",e=>{
