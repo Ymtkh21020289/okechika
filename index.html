@@ -144,6 +144,7 @@ height:24px;
 
 <div style="padding:10px;border-top:1px solid #aaa">
 <button onclick="addCell()">マス追加</button>
+<button onclick="deleteCell()">マス削除</button>
 <button onclick="changeMapping()">対応文字変更</button>
 <button onclick="resetData()">リセット</button>
 <button onclick="deleteChar()">⌫ 削除</button>
@@ -510,6 +511,13 @@ selectCell(cells[index-1])
 
 }
 
+if(e.key==="Delete"){
+
+deleteCell()
+e.preventDefault()
+
+}
+
 })
 
 /* セル選択関数 */
@@ -620,6 +628,33 @@ mapping[code]=text
 updateAll()
 saveData()
 showDictionary()
+
+}
+
+function deleteCell(){
+
+if(!currentCell) return
+
+let index=cells.indexOf(currentCell)
+
+currentCell.remove()
+
+cells.splice(index,1)
+
+/* 次のセル選択 */
+
+if(cells.length>0){
+
+let newIndex=Math.min(index,cells.length-1)
+selectCell(cells[newIndex])
+
+}else{
+
+currentCell=null
+
+}
+
+saveData()
 
 }
   
