@@ -14,6 +14,20 @@ flex-direction:column;
 height:100vh;
 }
 
+#documentBar{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+background:#ddd;
+padding:8px;
+z-index:10;
+}
+
+#container{
+margin-top:60px;
+}
+
 #gridArea{
 flex:1;
 overflow-y:auto;
@@ -140,6 +154,17 @@ height:24px;
 
 <body>
 
+<div id="documentBar">
+
+文章:
+<select id="documentSelect" onchange="loadDocument()"></select>
+
+<button onclick="newDocument()">新規</button>
+<button onclick="saveDocument()">保存</button>
+<button onclick="deleteDocument()">削除</button>
+
+</div>
+
 <div id="gridArea"></div>
 
 <div style="padding:10px;border-top:1px solid #aaa">
@@ -187,6 +212,8 @@ let mapping={}
 let cells=[]
 let currentCell=null
 let selectedHen=null
+let documents={}
+let currentDocument="default"
 
 /* 保存 */
 
@@ -219,6 +246,8 @@ let tsu=parseInt(parts[1].substring(1))
 inputOkechika(code,hen,tsu)
 
 }
+
+loadDocuments()
 
 })
 
@@ -655,6 +684,134 @@ currentCell=null
 }
 
 saveData()
+
+}
+
+function loadDocuments(){
+
+let data=localStorage.getItem("oketsu_documents")
+
+if(data){
+documents=JSON.parse(data)
+}
+
+updateDocumentList()
+
+if(!documents[currentDocument]){
+documents[currentDocument]={}
+}
+
+}
+
+function updateDocumentList(){
+
+let select=document.getElementById("documentSelect")
+
+select.innerHTML=""
+
+Object.keys(documents).forEach(name=>{
+
+let opt=document.createElement("option")
+opt.value=name
+opt.textContent=name
+
+if(name===currentDocument){
+opt.selected=true
+}
+
+select.appendChild(opt)
+
+})
+
+}
+
+function newDocument(){
+
+let name=prompt("文章名を入力")
+
+if(!name) return
+
+documents[name]={}
+
+currentDocument=name
+
+updateDocumentList()
+
+clearCells()
+
+}
+
+function saveDocument(){
+
+documents[currentDocument]={
+cells:exportCells(),
+mapping:mapping
+}
+
+localStorage.setItem(
+"oketsu_documents",
+JSON.stringify(documents)
+)
+
+alert("保存しました")
+
+}
+
+function loadDocument(){
+
+let select=document.getElementById("documentSelect")
+
+currentDocument=select.value
+
+let data=documents[currentDocument]
+
+if(!data) return
+
+importCells(data.cells)
+
+mapping=data.mapping||{}
+
+updateAll()
+
+}
+
+function deleteDocument(){
+
+if(!confirm("削除しますか？")) return
+
+delete documents[currentDocument]
+
+localStorage.setItem(
+"oketsu_documents",
+JSON.stringify(documents)
+)
+
+currentDocument=Object.keys(documents)[0]||"default"
+
+updateDocumentList()
+loadDocument()
+
+}
+
+function exportCells(){
+
+return cells.map(c=>c.code)
+
+}
+
+function importCells(data){
+
+clearCells()
+
+data.forEach(code=>{
+
+addCell()
+
+cells[cells.length-1].code=code
+
+})
+
+updateAll()
 
 }
   
