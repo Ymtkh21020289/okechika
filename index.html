@@ -820,6 +820,22 @@ cell.code=code
 updateAll()
 
 }
+
+function clearCells(){
+
+/* 盤面要素取得 */
+const container=document.getElementById("container")
+
+/* DOM削除 */
+container.innerHTML=""
+
+/* 配列初期化 */
+cells=[]
+
+/* 選択セル解除 */
+currentCell=null
+
+}
   
 </script>
 
