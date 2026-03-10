@@ -275,6 +275,8 @@ t.innerText=""
 return
 }
 
+c.ondblclick=()=>editCurrentCell()
+
 t.innerText=mapping[k]||"?"
 
 /* 偏あり */
@@ -616,6 +618,35 @@ createKeyboard()
 loadDocuments()
 
 addCell()
+
+function editCurrentCell(){
+
+if(!currentCell)return
+
+let k=currentCell.code
+
+if(!k){
+alert("先に桶地下文字を入力してください")
+return
+}
+
+let current=mapping[k]||""
+
+let v=prompt("対応文字を入力",current)
+
+if(v===null)return
+
+if(v===""){
+delete mapping[k]
+}else{
+mapping[k]=v
+}
+
+updateAll()
+
+saveData()
+
+}
 
 </script>
 
