@@ -486,7 +486,7 @@ updateAll()
 
 }
 
-function saveDocument(){
+function saveDocument(showMessage=true){
 
 documents[currentDocument]={
 cells:exportCells(),
@@ -495,7 +495,9 @@ mapping:{...mapping}
 
 localStorage.setItem("oketsu_documents",JSON.stringify(documents))
 
+if(showMessage){
 alert("保存しました")
+}
 
 }
 
@@ -581,7 +583,7 @@ updateDocumentList()
 }
 
 function saveData(){
-saveDocument()
+saveDocument(false)
 }
 
 document.addEventListener("keydown",e=>{
