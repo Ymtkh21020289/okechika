@@ -510,8 +510,6 @@ let d=documents[currentDocument]
 
 if(!d)return
 
-mapping=d.mapping||{}
-
 importCells(d.cells||[])
 
 }
@@ -590,16 +588,10 @@ mapping=JSON.parse(dic)
 function saveData(){
 
 saveDocument(false)
-
-/* 辞書保存 */
-
-localStorage.setItem(
-"oketsu_dictionary",
-JSON.stringify(mapping)
-)
+saveDictionary()
 
 }
-
+  
 document.addEventListener("keydown",e=>{
 
 if(e.key==="ArrowRight"){
@@ -631,8 +623,8 @@ deleteCell()
 
 createKeyboard()
 
+loadDictionary()
 loadDocuments()
-
 addCell()
 
 function editCurrentCell(){
@@ -661,6 +653,25 @@ mapping[k]=v
 updateAll()
 
 saveData()
+
+}
+
+function loadDictionary(){
+
+let dic=localStorage.getItem("oketsu_dictionary")
+
+if(dic){
+mapping=JSON.parse(dic)
+}
+
+}
+
+function saveDictionary(){
+
+localStorage.setItem(
+"oketsu_dictionary",
+JSON.stringify(mapping)
+)
 
 }
 
