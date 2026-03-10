@@ -188,13 +188,7 @@ cell.appendChild(trans)
 cell.appendChild(sym)
 
 cell.onclick=()=>{
-
-document.querySelectorAll(".cell")
-.forEach(c=>c.classList.remove("selected"))
-
-cell.classList.add("selected")
-currentCell=cell
-
+selectCell(cell)
 }
 
 grid.appendChild(cell)
@@ -432,8 +426,51 @@ e.preventDefault()
 
 })
 
+document.addEventListener("keydown",function(e){
+
+if(!currentCell) return
+
+let index=cells.indexOf(currentCell)
+
+/* 右移動 */
+
+if(e.key==="ArrowRight"){
+
+if(index < cells.length-1){
+
+selectCell(cells[index+1])
+
+}
+
+}
+
+/* 左移動 */
+
+if(e.key==="ArrowLeft"){
+
+if(index > 0){
+
+selectCell(cells[index-1])
+
+}
+
+}
+
+})
+
+/* セル選択関数 */
+
+function selectCell(cell){
+
+document.querySelectorAll(".cell")
+.forEach(c=>c.classList.remove("selected"))
+
+cell.classList.add("selected")
+currentCell=cell
+
+}
+  
 </script>
 
 </body>
 </html>
-```
