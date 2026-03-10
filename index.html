@@ -123,6 +123,11 @@ display:flex;
 align-items:center;
 gap:10px;
 margin:5px 0;
+cursor:pointer;
+}
+
+.dictRow:hover{
+background:#eeeeee;
 }
 
 .dictRow img{
@@ -538,6 +543,9 @@ keys.forEach(code=>{
 
 let row=document.createElement("div")
 row.className="dictRow"
+row.onclick=()=>{
+editDictionary(code)
+}
 
 /* 偏あり */
 
@@ -592,6 +600,26 @@ panel.style.display="flex"
 function closeDictionary(){
 
 document.getElementById("dictionaryPanel").style.display="none"
+
+}
+
+function editDictionary(code){
+
+let current=mapping[code]
+
+let text=prompt("対応文字を編集",current)
+
+if(text===null) return
+
+if(text===""){
+delete mapping[code]
+}else{
+mapping[code]=text
+}
+
+updateAll()
+saveData()
+showDictionary()
 
 }
   
