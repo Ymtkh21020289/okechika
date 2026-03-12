@@ -783,6 +783,9 @@ alert("文字がありません")
 return
 }
 
+/* 現在の位置 */
+let currentIndex=cells.indexOf(currentCell)
+
 let results=[]
 
 Object.keys(documents).forEach(docName=>{
@@ -793,7 +796,13 @@ if(!doc.cells) return
 
 doc.cells.forEach((c,i)=>{
 
+/* 一致チェック */
 if(c===code){
+
+/* 自分自身は除外 */
+if(docName===currentDocument && i===currentIndex){
+return
+}
 
 results.push({
 doc:docName,
@@ -809,7 +818,7 @@ pos:i+1
 showSearchResults(code,results)
 
 }
-
+  
 function showSearchResults(code,results){
 
 let panel=document.getElementById("searchPanel")
