@@ -140,6 +140,7 @@ height:24px;
 <button onclick="reverseConvert()">変換入力</button>
   
 <button onclick="showDictionary()">辞書一覧</button>
+<button onclick="searchCharacter()">文字検索</button>
 
 </div>
 
@@ -156,6 +157,38 @@ height:24px;
 <div id="dictionaryList"></div>
 
 <button onclick="closeDictionary()">閉じる</button>
+
+</div>
+
+</div>
+
+<div id="searchPanel" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+display:none;
+justify-content:center;
+align-items:center;
+">
+
+<div style="
+background:white;
+padding:20px;
+max-height:80%;
+overflow:auto;
+min-width:300px;
+">
+
+<h3>文字検索結果</h3>
+
+<div id="searchResults"></div>
+
+<br>
+
+<button onclick="closeSearch()">閉じる</button>
 
 </div>
 
@@ -734,6 +767,80 @@ updateCell(cells[index])
 
 saveData()
 
+}
+
+function searchCharacter(){
+
+if(!currentCell){
+alert("セルを選択してください")
+return
+}
+
+let code=currentCell.code
+
+if(!code){
+alert("文字がありません")
+return
+}
+
+let results=[]
+
+Object.keys(documents).forEach(docName=>{
+
+let doc=documents[docName]
+
+if(!doc.cells) return
+
+doc.cells.forEach((c,i)=>{
+
+if(c===code){
+
+results.push({
+doc:docName,
+pos:i+1
+})
+
+}
+
+})
+
+})
+
+showSearchResults(code,results)
+
+}
+
+function showSearchResults(code,results){
+
+let panel=document.getElementById("searchPanel")
+let list=document.getElementById("searchResults")
+
+list.innerHTML=""
+
+if(results.length===0){
+
+list.innerText="使用されている文章はありません"
+
+}else{
+
+results.forEach(r=>{
+
+let div=document.createElement("div")
+
+div.innerText=r.doc+" ： "+r.pos+"文字目"
+
+list.appendChild(div)
+
+})
+
+}
+
+panel.style.display="flex"
+
+}
+
+function closeSearch(){
+document.getElementById("searchPanel").style.display="none"
 }
 
 </script>
