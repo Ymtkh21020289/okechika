@@ -136,6 +136,8 @@ height:24px;
 <button onclick="deleteChar()">⌫文字削除</button>
 <button onclick="deleteCell()">マス削除</button>
 
+<button onclick="reverseConvert()">変換入力</button>
+  
 <button onclick="showDictionary()">辞書一覧</button>
 
 </div>
@@ -673,6 +675,63 @@ localStorage.setItem(
 "oketsu_dictionary",
 JSON.stringify(mapping)
 )
+
+}
+
+function buildReverseDictionary(){
+
+let reverse={}
+
+Object.keys(mapping).forEach(code=>{
+
+let v=mapping[code]
+
+if(!v) return
+
+reverse[v]=code
+
+})
+
+return reverse
+
+}
+
+function reverseConvert(){
+
+let text=document.getElementById("reverseInput").value
+
+if(!text) return
+
+let reverse=buildReverseDictionary()
+
+let startIndex=cells.indexOf(currentCell)
+
+if(startIndex==-1) startIndex=cells.length
+
+for(let i=0;i<text.length;i++){
+
+let ch=text[i]
+
+let code=reverse[ch]
+
+if(!code){
+addCell()
+continue
+}
+
+let index=startIndex+i
+
+if(index>=cells.length){
+addCell()
+}
+
+cells[index].code=code
+
+updateCell(cells[index])
+
+}
+
+saveData()
 
 }
 
