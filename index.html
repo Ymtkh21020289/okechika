@@ -838,6 +838,12 @@ let div=document.createElement("div")
 
 div.innerText=r.doc+" ： "+r.pos+"文字目"
 
+div.style.cursor="pointer"
+
+div.onclick=()=>{
+jumpToResult(r.doc,r.pos-1)
+}
+
 list.appendChild(div)
 
 })
@@ -850,6 +856,36 @@ panel.style.display="flex"
 
 function closeSearch(){
 document.getElementById("searchPanel").style.display="none"
+}
+
+function jumpToResult(docName,index){
+
+/* パネル閉じる */
+closeSearch()
+
+/* 文章切り替え */
+currentDocument=docName
+
+document.getElementById("documentSelect").value=docName
+
+loadDocument()
+
+/* セル選択 */
+setTimeout(()=>{
+
+if(cells[index]){
+selectCell(cells[index])
+
+/* スクロール */
+cells[index].scrollIntoView({
+behavior:"smooth",
+block:"center"
+})
+
+}
+
+},50)
+
 }
 
 </script>
