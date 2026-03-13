@@ -159,6 +159,10 @@ background:white;
 <button onclick="showDictionary()">辞書一覧</button>
 <button onclick="searchCharacter()">文字検索</button>
 
+<button onclick="toggleKanaPanel()" id="kanaToggleBtn">
+50音表を隠す
+</button>
+
 </div>
 
 <div id="container"></div>
@@ -1048,6 +1052,25 @@ td.className="kanaUnknown"
 }
 
 })
+
+}
+
+function toggleKanaPanel(){
+
+let panel=document.getElementById("kanaPanel")
+let btn=document.getElementById("kanaToggleBtn")
+
+if(panel.style.display==="none"){
+
+panel.style.display="block"
+btn.innerText="50音表を隠す"
+
+}else{
+
+panel.style.display="none"
+btn.innerText="50音表を表示"
+
+}
 
 }
 
