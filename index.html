@@ -1095,10 +1095,6 @@ char:"?"
 
 documents[currentDocument].cells.splice(index,0,cell)
 
-/* 再描画 */
-
-renderCells()
-
 /* 挿入したセルを選択 */
 
 setTimeout(()=>{
@@ -1108,8 +1104,6 @@ selectCell(cells[index])
 },10)
 
 /* 自動保存 */
-
-autoSave()
 
 }
 
