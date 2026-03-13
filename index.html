@@ -131,6 +131,7 @@ height:24px;
 <button onclick="newDocument()">新規</button>
 <button onclick="saveDocument()">保存</button>
 <button onclick="deleteDocument()">削除</button>
+<button onclick="renameDocument()">名前変更</button>
 
 <button onclick="addCell()">マス追加</button>
 <button onclick="deleteChar()">⌫文字削除</button>
@@ -885,6 +886,44 @@ block:"center"
 }
 
 },50)
+
+}
+
+function renameDocument(){
+
+let oldName=currentDocument
+
+let newName=prompt("新しい文章名を入力",oldName)
+
+if(!newName) return
+
+/* 同名チェック */
+
+if(documents[newName]){
+alert("同じ名前の文章があります")
+return
+}
+
+/* データ移動 */
+
+documents[newName]=documents[oldName]
+
+delete documents[oldName]
+
+currentDocument=newName
+
+/* 保存 */
+
+localStorage.setItem(
+"oketsu_documents",
+JSON.stringify(documents)
+)
+
+/* UI更新 */
+
+updateDocumentList()
+
+document.getElementById("documentSelect").value=newName
 
 }
 
