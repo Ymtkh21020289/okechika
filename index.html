@@ -203,6 +203,34 @@ let mapping={}
 
 let documents={}
 let currentDocument="文章1"
+const kanaGrid=[
+["","あ","い","う","え","お"],
+
+["か","か","き","く","け","こ"],
+["が","が","ぎ","ぐ","げ","ご"],
+
+["さ","さ","し","す","せ","そ"],
+["ざ","ざ","じ","ず","ぜ","ぞ"],
+
+["た","た","ち","つ","て","と"],
+["だ","だ","ぢ","づ","で","ど"],
+
+["な","な","に","ぬ","ね","の"],
+
+["は","は","ひ","ふ","へ","ほ"],
+["ば","ば","び","ぶ","べ","ぼ"],
+["ぱ","ぱ","ぴ","ぷ","ぺ","ぽ"],
+
+["ま","ま","み","む","め","も"],
+
+["や","や","","ゆ","","よ"],
+
+["ら","ら","り","る","れ","ろ"],
+
+["わ","わ","","","","を"],
+
+["","ん","","","",""]
+]
 
 function createKeyboard(){
 
@@ -487,6 +515,7 @@ mapping[code]=v
 }
 
 updateAll()
+updateKanaTable()
 
 saveData()
 
@@ -660,6 +689,8 @@ deleteCell()
 })
 
 createKeyboard()
+createKanaTable()
+updateKanaTable()
 
 loadDictionary()
 loadDocuments()
@@ -689,7 +720,7 @@ mapping[k]=v
 }
 
 updateAll()
-
+updateKanaTable()
 saveData()
 
 }
@@ -924,6 +955,66 @@ JSON.stringify(documents)
 updateDocumentList()
 
 document.getElementById("documentSelect").value=newName
+
+}
+
+function createKanaTable(){
+
+let table=document.getElementById("kanaTable")
+
+kanaGrid.forEach(row=>{
+
+let tr=document.createElement("tr")
+
+row.forEach(k=>{
+
+let td=document.createElement("td")
+
+td.innerText=k
+
+if(k==="") td.style.background="#eee"
+
+tr.appendChild(td)
+
+})
+
+table.appendChild(tr)
+
+})
+
+}
+
+function updateKanaTable(){
+
+let found=new Set()
+
+Object.values(mapping).forEach(v=>{
+
+if(!v) return
+
+/* ひらがなのみ対象 */
+
+if(v.match(/[ぁ-ん]/)){
+found.add(v)
+}
+
+})
+
+let table=document.getElementById("kanaTable")
+
+Array.from(table.querySelectorAll("td")).forEach(td=>{
+
+let k=td.innerText
+
+if(!k) return
+
+if(found.has(k)){
+td.className="kanaFound"
+}else{
+td.className="kanaUnknown"
+}
+
+})
 
 }
 
