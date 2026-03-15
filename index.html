@@ -150,8 +150,9 @@ background:white;
 <button onclick="renameDocument()">名前変更</button>
 
 <button onclick="addCell()">マス追加</button>
-<button onclick="deleteChar()">⌫文字削除</button>
+<button onclick="insertCellLeft()">左にマス挿入</button>
 <button onclick="deleteCell()">マス削除</button>
+<button onclick="deleteChar()">⌫文字削除</button>
 
 <input id="reverseInput" type="text" style="width:200px">
 <button onclick="reverseConvert()">変換入力</button>
@@ -1083,28 +1084,25 @@ return
 
 let index=cells.indexOf(currentCell)
 
-/* 新セル作成 */
+let c=document.createElement("div")
+c.className="cell"
 
-let cell={
-code:null,
-char:"?"
-}
+c.onclick=()=>selectCell(c)
 
-/* 配列へ挿入 */
+let glyph=document.createElement("div")
+glyph.className="glyph"
 
-documents[currentDocument].cells.splice(index,0,cell)
+let t=document.createElement("div")
+t.className="translate"
 
-loadDocument()
+c.appendChild(t)
+c.appendChild(glyph)
 
-/* 挿入したセルを選択 */
+document.getElementById("container").appendChild(c)
 
-setTimeout(()=>{
+cells.splice(index,0,c)
 
-selectCell(cells[index])
-
-},10)
-
-/* 自動保存 */
+selectCell(c)
 
 }
 
